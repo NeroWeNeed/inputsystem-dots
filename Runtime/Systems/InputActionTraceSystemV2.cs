@@ -54,7 +54,7 @@ namespace NeroWeNeed.InputSystemV2
         }
     }
     //Systems
-    public sealed class InputActionBufferUpdateSystem : SystemBase
+/*     public sealed class InputActionBufferUpdateSystem : SystemBase
     {
         private NativeList<byte> inputBuffer;
         private InputActionTrace inputActionTrace;
@@ -89,7 +89,7 @@ current.ReadValue()
             inputBuffer.Dispose();
             base.OnDestroy();
         }
-    }
+    } */
 
 
 }
