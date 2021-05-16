@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement>
+        <uie:PropertyField binding-path="asset" name="asset-field" />
+        <uie:PropertyField binding-path="assemblyPath" label="Path" />
+        <uie:PropertyField binding-path="assemblyName" label="Name" />
+        <uie:PropertyField binding-path="assemblyNamespace" label="Namespace" />
+        <ui:VisualElement name="inputActionMapInfoContainer"/>
+        <ui:Button name="generate" text="Generate Assembly" />
+    </ui:VisualElement>
+</ui:UXML>

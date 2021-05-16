@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement>
+        <uie:PropertyField binding-path="asset" name="asset-field" />
+        <uie:PropertyField binding-path="actionMap" name="actionMap" />
+    </ui:VisualElement>
+</ui:UXML>

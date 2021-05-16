@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement>
+        <uie:PropertyField binding-path="asset" name="asset-field" />
+        <ui:VisualElement name="popup-container" />
+    </ui:VisualElement>
+</ui:UXML>

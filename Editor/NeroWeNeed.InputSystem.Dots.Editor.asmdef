@@ -1,0 +1,31 @@
+{
+    "name": "NeroWeNeed.InputSystem.Dots.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:329b4ccd385744985bf3f83cfd77dfe7",
+        "GUID:ab4fa2de7f01209498a90eb5bab0f8f0",
+        "GUID:4e4a10f31e908ca46a41e81cad616cbc",
+        "GUID:07ecad55a7336bf48ab59684de11b085",
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:8a2eafa29b15f444eb6d74f94a930e1d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Mdb.dll",
+        "Mono.Cecil.Pdb.dll",
+        "Mono.Cecil.Rocks.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
