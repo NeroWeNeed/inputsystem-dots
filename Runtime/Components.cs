@@ -16,8 +16,13 @@ namespace NeroWeNeed.InputSystem
     public struct InputActionAssetData : ISystemStateSharedComponentData, IEquatable<InputActionAssetData>
     {
         public InputActionAsset value;
-        public InputActionAssetData(string json) {
+        public InputActionAssetData(string json)
+        {
             value = InputActionAsset.FromJson(json);
+        }
+        public InputActionAssetData(InputActionAsset asset)
+        {
+            value = asset;
         }
         public bool Equals(InputActionAssetData other)
         {
@@ -29,24 +34,23 @@ namespace NeroWeNeed.InputSystem
             return -1584136870 + EqualityComparer<InputActionAsset>.Default.GetHashCode(value);
         }
     }
-    public struct InputActionAssetLoadData : ISharedComponentData, IEquatable<InputActionAssetLoadData>
+    public struct InputActionAssetLoadRequest : IComponentData
     {
-        public string value;
-
-        public InputActionAssetLoadData(InputActionAsset asset)
+        public Guid value;
+#if UNITY_EDITOR
+        public InputActionAssetLoadRequest(InputActionAsset asset)
         {
-            this.value = asset.ToJson();
+            value = Guid.Empty;
+            var path = UnityEditor.AssetDatabase.GetAssetPath(asset);
+            if (path != null)
+            {
+                var guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
+                if (!string.IsNullOrEmpty(guid)) {
+                    value = Guid.Parse(guid);
+                }
+            }
         }
-
-        public bool Equals(InputActionAssetLoadData other)
-        {
-            return value == other.value;
-        }
-
-        public override int GetHashCode()
-        {
-            return 2046966715 + EqualityComparer<string>.Default.GetHashCode(value);
-        }
+#endif
     }
     [Serializable]
     public struct InputActionMapReference : ISharedComponentData, IEquatable<InputActionMapReference>

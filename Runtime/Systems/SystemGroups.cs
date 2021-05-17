@@ -1,6 +1,8 @@
 using Unity.Entities;
 
 namespace NeroWeNeed.InputSystem {
+    [UpdateInGroup(typeof(InputSystemGroup), OrderFirst = true)]
+    public class InputAssetLoaderSystemGroup : ComponentSystemGroup {}
     public class InputSystemGroup : ComponentSystemGroup { }
     [UpdateInGroup(typeof(InputSystemGroup))]
     [UpdateAfter(typeof(InputStructuralChangeSystemGroup))]

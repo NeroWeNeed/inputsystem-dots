@@ -9,7 +9,7 @@ using UnityEngine.InputSystem.Utilities;
 namespace NeroWeNeed.InputSystem
 {
     [UpdateInGroup(typeof(InputSystemGroup), OrderFirst = true)]
-    [UpdateAfter(typeof(InputActionAssetLoaderSystem))]
+    [UpdateAfter(typeof(InputAssetLoaderSystemGroup))]
     public class InputActionTraceSystem : SystemBase
     {
         public InputActionTrace ActionTrace { get; private set; }
