@@ -12,8 +12,10 @@ namespace NeroWeNeed.InputSystem
 
         public EntityQuery Query { get; protected set; }
         public ComponentType[] ComponentTypes { get; protected set; }
+        
         protected override void OnUpdate()
         {
+            
             var entities = Query.ToEntityArray(Allocator.Temp);
             foreach (var componentType in ComponentTypes)
             {

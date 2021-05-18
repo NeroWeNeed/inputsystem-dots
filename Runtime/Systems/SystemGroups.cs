@@ -1,8 +1,9 @@
 using Unity.Entities;
 
-namespace NeroWeNeed.InputSystem {
-    [UpdateInGroup(typeof(InputSystemGroup), OrderFirst = true)]
-    public class InputAssetLoaderSystemGroup : ComponentSystemGroup {}
+namespace NeroWeNeed.InputSystem
+{
+    [UpdateInGroup(typeof(InputInitializationSystemGroup))]
+    public class InputAssetLoaderSystemGroup : ComponentSystemGroup { }
     public class InputSystemGroup : ComponentSystemGroup { }
     [UpdateInGroup(typeof(InputSystemGroup))]
     [UpdateAfter(typeof(InputStructuralChangeSystemGroup))]
@@ -20,4 +21,6 @@ namespace NeroWeNeed.InputSystem {
     [UpdateInGroup(typeof(InputStructuralChangeSystemGroup))]
     [UpdateAfter(typeof(InputInitSystemGroup))]
     public class InputDisposeSystemGroup : ComponentSystemGroup { }
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    public class InputInitializationSystemGroup : ComponentSystemGroup { }
 }

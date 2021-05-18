@@ -5,58 +5,108 @@ using System;
 using Unity.Scenes;
 using UnityEditor;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Mathematics;
 
 namespace NeroWeNeed.InputSystem.Editor
 {
-    [RequireComponent(typeof(InputActionAssetProvider))]
     public class InputController : MonoBehaviour, IConvertGameObjectToEntity
     {
         [SerializeField]
-        public InputActionMapInfo actionMap;
-        [SerializeField]
-        private InputActionAssetSingleton assetSingleton;
-
+        private InputActionMapOptions options;
         private void OnValidate()
         {
-            if (assetSingleton == null)
+            if (options.asset != null)
             {
-                assetSingleton = FindObjectOfType<InputActionAssetSingleton>();
-                if (assetSingleton == null)
+                if (options.entries == null)
                 {
-                    var go = new GameObject("InputActionAsset", typeof(InputActionAssetSingleton));
-                    var component = go.GetComponent<InputActionAssetSingleton>();
-                    component.value = actionMap.asset;
-                    assetSingleton = component;
-                    SceneManager.MoveGameObjectToScene(go, this.gameObject.scene);
-                }
-            }
-            if (assetSingleton.value != actionMap.asset)
-            {
-                if (assetSingleton.value == null)
-                {
-                    assetSingleton.value = actionMap.asset;
-                }
-                else if (actionMap.asset == null)
-                {
-                    actionMap.asset = assetSingleton.value;
+                    options.entries = options.asset.actionMaps.Select(actionMap => new InputActionMapOptions.Entry(actionMap)).ToArray();
                 }
                 else
                 {
-                    Debug.LogError("Multiple InputActionAssets are not supported. Please compact them into one asset.");
+                    var info = new Dictionary<Guid, InputActionMapOptions.Entry>();
+                    foreach (var item in options.asset.actionMaps)
+                    {
+                        info[item.id] = new InputActionMapOptions.Entry(item);
+                    }
+                    foreach (var item in options.entries)
+                    {
+                        if (info.ContainsKey(item.Guid))
+                        {
+                            info[item.Guid] = item;
+                        }
+                    }
+                    options.entries = info.Values.ToArray();
                 }
             }
+            else
+            {
+                options.entries = Array.Empty<InputActionMapOptions.Entry>();
+            }
+            EditorUtility.SetDirty(this);
         }
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            if (this.actionMap.asset != null)
+            if (options.asset != null)
+            {
+                conversionSystem.DeclareAssetDependency(gameObject, options.asset);
+                var assetPath = AssetDatabase.GetAssetPath(options.asset);
+                if (assetPath != null)
+                {
+                    var guid = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DefaultGroup.GetAssetEntry(AssetDatabase.AssetPathToGUID(assetPath))?.guid;
+                    if (guid != null)
+                    {
+                        dstManager.AddSharedComponentData(entity, new InputActionAssetLoadRequest { value = Guid.Parse(guid) });
+                        if (options.entries != null)
+                        {
+                            InputActionComponentMappingManager.Initialize();
+                            foreach (var entry in options.entries.Where(entry => entry.enabledByDefault))
+                            {
+                                if (InputActionComponentMappingManager.TryGetActionMapComponent(entry.Guid, out var componentType))
+                                {
+                                    dstManager.AddComponent(entity, componentType);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        [Serializable]
+        public struct InputActionMapOptions
+        {
+            public InputActionAsset asset;
+            public Entry[] entries;
+
+
+            [Serializable]
+            public struct Entry
             {
 
-
-                var actionMap = this.actionMap.asset.FindActionMap(this.actionMap.id, false);
-                if (actionMap != null)
+                public string id;
+                private Guid guid;
+                public Guid Guid
                 {
-                    dstManager.AddSharedComponentData(entity, new InputActionMapReference(actionMap.id));
+                    get
+                    {
+                        if (guid == Guid.Empty && !string.IsNullOrEmpty(id))
+                        {
+                            if (!Guid.TryParseExact(id, "B", out guid))
+                            {
+                                id = null;
+                            }
+                        }
+                        return guid;
+                    }
+                }
+                public bool enabledByDefault;
+                public Entry(InputActionMap actionMap)
+                {
+                    id = actionMap.id.ToString("B");
+                    enabledByDefault = true;
                 }
             }
         }

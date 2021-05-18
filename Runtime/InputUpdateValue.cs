@@ -1,22 +1,23 @@
+using System;
+using System.Runtime.InteropServices;
+using Unity.Mathematics;
 using UnityEngine.InputSystem;
 
 namespace NeroWeNeed.InputSystem
 {
-    public struct InputUpdateValue<TValue> where TValue : unmanaged
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct InputActionHeaderData
     {
-        public TValue value;
+        //Offset to start any memory copies from header data to output.
+        public const int DataOffset = 40;
+
+        public int sizeInBytes;
+        public Guid actionMapId;
+        public Guid actionId;
         public double startTime;
         public double time;
         public InputActionPhase phase;
         public int deviceId;
-
-        public InputUpdateValue(TValue value, double startTime, double time, InputActionPhase phase,int deviceId)
-        {
-            this.value = value;
-            this.startTime = startTime;
-            this.time = time;
-            this.phase = phase;
-            this.deviceId = deviceId;
-        }
     }
 }

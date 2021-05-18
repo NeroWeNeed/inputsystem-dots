@@ -6,19 +6,19 @@ namespace NeroWeNeed.InputSystem
 {
     [UpdateInGroup(typeof(InputSystemGroup), OrderLast = true)]
     [UpdateBefore(typeof(InputActionAssetUnloaderSystem))]
-    public class InputActionTraceClearSystem : SystemBase
+    public class InputActionCleanupSystem : SystemBase
     {
-        protected InputActionTraceSystem inputActionTraceSystem;
+        protected InputActionProcessorSystem inputActionProcessorSystem;
         private JobHandle clearHandle;
         protected override void OnCreate()
         {
             base.OnCreate();
-            inputActionTraceSystem = World.GetOrCreateSystem<InputActionTraceSystem>();
+            inputActionProcessorSystem = World.GetOrCreateSystem<InputActionProcessorSystem>();
         }
         protected override void OnUpdate()
         {
             clearHandle.Complete();
-            inputActionTraceSystem.ActionTrace.Clear();
+            inputActionProcessorSystem.Handles.Clear();
         }
         public void AddJobHandle(JobHandle handle)
         {

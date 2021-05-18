@@ -1,35 +1,28 @@
 using System;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Utilities;
 
 namespace NeroWeNeed.InputSystem
 {
-[UpdateInGroup(typeof(InputUpdateSystemGroup))]
+    [BurstCompile]
+    public unsafe static class InputUpdateSystemJobUtility
+    {
+        [BurstCompile]
+        public static void WriteComponents(void* destination, ref NativeInputActionBuffer.ActionEventHandle handle, int count)
+        {
+            UnsafeUtility.MemCpyReplicate(destination, handle.Data + InputActionHeaderData.DataOffset, handle.Header->sizeInBytes - InputActionHeaderData.DataOffset,count);
+        }
+    }
+    [UpdateInGroup(typeof(InputUpdateSystemGroup))]
     public abstract class InputUpdateSystemBase : SystemBase
     {
-        public string ActionMapId { get; protected set; }
+        public Guid ActionMapId { get; protected set; }
         public NativeHashMap<Guid, int> ActionIndices { get; protected set; }
-        protected void StartActionTrace(InputActionAssetData assetData)
-        {
-            var actionMap = assetData.value.FindActionMap(ActionMapId);
-            actionMap.Enable();
-            //ActionTrace.SubscribeTo(actionMap);
-        }
-        protected void StopActionTrace(InputActionAssetData assetData)
-        {
-            var actionMap = assetData.value.FindActionMap(ActionMapId);
-            actionMap.Disable();
-            //ActionTrace.UnsubscribeFrom(actionMap);
-        }
         protected override void OnDestroy()
         {
             ActionIndices.Dispose();
-        }
-        public int GetActionIndex(Guid id) {
-            return ActionIndices.TryGetValue(id, out var item) ? item : -1;
         }
     }
 }

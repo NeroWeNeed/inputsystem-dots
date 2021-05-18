@@ -34,9 +34,13 @@ namespace NeroWeNeed.InputSystem
             return -1584136870 + EqualityComparer<InputActionAsset>.Default.GetHashCode(value);
         }
     }
-    public struct InputActionAssetLoadRequest : IComponentData
+    public struct InputActionAssetLoadRequest : ISharedComponentData, IEquatable<InputActionAssetLoadRequest>
     {
         public Guid value;
+
+        public InputActionAssetLoadRequest(Guid value) {
+            this.value = value;
+        }
 #if UNITY_EDITOR
         public InputActionAssetLoadRequest(InputActionAsset asset)
         {
@@ -45,11 +49,23 @@ namespace NeroWeNeed.InputSystem
             if (path != null)
             {
                 var guid = UnityEditor.AssetDatabase.AssetPathToGUID(path);
-                if (!string.IsNullOrEmpty(guid)) {
+                if (!string.IsNullOrEmpty(guid))
+                {
                     value = Guid.Parse(guid);
                 }
             }
         }
+
+        public bool Equals(InputActionAssetLoadRequest other)
+        {
+            return value.Equals(other.value);
+        }
+
+        public override int GetHashCode()
+        {
+            return -1584136870 + value.GetHashCode();
+        }
+
 #endif
     }
     [Serializable]
