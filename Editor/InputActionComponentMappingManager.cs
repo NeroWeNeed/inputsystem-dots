@@ -15,34 +15,75 @@ namespace NeroWeNeed.InputSystem.Editor
         private static Dictionary<Guid, MappingData> inputActionMapComponents = new Dictionary<Guid, MappingData>();
         public static void Initialize()
         {
-            if (!initialized)
+            /* if (!initialized)
             {
                 foreach (var mapping in AssetDatabase.FindAssets($"t:{nameof(InputActionComponentMappingAsset)}").Select(a => AssetDatabase.LoadAssetAtPath<InputActionComponentMappingAsset>(AssetDatabase.GUIDToAssetPath(a))))
                 {
-                    var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(assembly => assembly.GetName().Name == mapping.assembly);
+                    var assembly = Array.Find(AppDomain.CurrentDomain.GetAssemblies(), assembly => assembly.GetName().Name == mapping.assembly);
                     if (assembly != null)
                     {
                         foreach (var actionMap in mapping.actionMaps)
                         {
                             inputActionMapComponents[Guid.ParseExact(actionMap.id, "B")] = new MappingData
                             {
-                                inputActionMapComponent = assembly.GetType(actionMap.component),
-                                inputActionComponents = actionMap.actions.Select(a => assembly.GetType(a.component)).ToList().AsReadOnly()
+                                actionMapComponent = assembly.GetType(actionMap.component),
+                                actionComponents = actionMap.actions.Select(a => assembly.GetType(a.component)).ToList().AsReadOnly()
                             };
                         }
                     }
                 }
                 initialized = true;
+            } */
+            if (!initialized)
+            {
+
+                initialized = true;
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var actionMapComponents = new Dictionary<string, Type>();
+                var actionComponents = new Dictionary<string, List<Type>>();
+                foreach (var assembly in assemblies)
+                {
+                    if (assembly.GetCustomAttribute<InputActionAssemblyAttribute>() != null)
+                    {
+                        foreach (var type in assembly.GetTypes())
+                        {
+                            var mapAttr = type.GetCustomAttribute<InputActionMapComponentAttribute>();
+                            if (mapAttr != null && (typeof(IInputActionMapTag).IsAssignableFrom(type)))
+                            {
+                                actionMapComponents[mapAttr.id] = type;
+                            }
+                            else
+                            {
+                                var actionAttr = type.GetCustomAttribute<InputActionComponentAttribute>();
+                                if (actionAttr != null && (typeof(IInputData).IsAssignableFrom(type)))
+                                {
+                                    if (!actionComponents.TryGetValue(actionAttr.actionMapId, out var actionTypes))
+                                    {
+                                        actionTypes = new List<Type>();
+                                        actionComponents[actionAttr.actionMapId] = actionTypes;
+                                    }
+                                    actionTypes.Add(type);
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach (var actionMapComponent in actionMapComponents)
+                {
+                    inputActionMapComponents[Guid.ParseExact(actionMapComponent.Key, "B")] = new MappingData(actionMapComponent.Value, actionComponents.TryGetValue(actionMapComponent.Key, out var actionTypes) ? actionTypes.AsReadOnly() : new ReadOnlyCollection<Type>(null));
+                }
+                initialized = true;
+
             }
         }
         public static MappingData Get(Guid guid) => inputActionMapComponents[guid];
-        public static Type GetActionMapComponent(Guid guid) => inputActionMapComponents[guid].inputActionMapComponent;
+        public static Type GetActionMapComponent(Guid guid) => inputActionMapComponents[guid].actionMapComponent;
         public static bool TryGetActionMapComponent(Guid guid, out Type result)
         {
             result = null;
             if (inputActionMapComponents.TryGetValue(guid, out var data))
             {
-                result = data.inputActionMapComponent;
+                result = data.actionMapComponent;
                 return true;
             }
             else
@@ -50,11 +91,17 @@ namespace NeroWeNeed.InputSystem.Editor
                 return false;
             }
         }
-        public static ReadOnlyCollection<Type> GetActionComponents(Guid guid) => inputActionMapComponents[guid].inputActionComponents;
+        public static ReadOnlyCollection<Type> GetActionComponents(Guid guid) => inputActionMapComponents[guid].actionComponents;
         public struct MappingData
         {
-            public Type inputActionMapComponent;
-            public ReadOnlyCollection<Type> inputActionComponents;
+            public readonly Type actionMapComponent;
+            public readonly ReadOnlyCollection<Type> actionComponents;
+
+            public MappingData(Type actionMapComponent, ReadOnlyCollection<Type> actionComponents)
+            {
+                this.actionMapComponent = actionMapComponent;
+                this.actionComponents = actionComponents;
+            }
         }
     }
 }

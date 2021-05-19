@@ -58,7 +58,7 @@ namespace NeroWeNeed.InputSystem.Editor
                     var guid = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DefaultGroup.GetAssetEntry(AssetDatabase.AssetPathToGUID(assetPath))?.guid;
                     if (guid != null)
                     {
-                        dstManager.AddSharedComponentData(entity, new InputActionAssetLoadRequest { value = Guid.Parse(guid) });
+                        dstManager.AddSharedComponentData(entity, new InputActionAssetRequest(Guid.Parse(guid)));
                         if (options.entries != null)
                         {
                             InputActionComponentMappingManager.Initialize();

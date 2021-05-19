@@ -1,20 +1,11 @@
 using System;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Entities.LowLevel.Unsafe;
+using Unity.Mathematics;
 
 namespace NeroWeNeed.InputSystem
 {
-    [BurstCompile]
-    public unsafe static class InputUpdateSystemJobUtility
-    {
-        [BurstCompile]
-        public static void WriteComponents(void* destination, ref NativeInputActionBuffer.ActionEventHandle handle, int count)
-        {
-            UnsafeUtility.MemCpyReplicate(destination, handle.Data + InputActionHeaderData.DataOffset, handle.Header->sizeInBytes - InputActionHeaderData.DataOffset,count);
-        }
-    }
     [UpdateInGroup(typeof(InputUpdateSystemGroup))]
     public abstract class InputUpdateSystemBase : SystemBase
     {

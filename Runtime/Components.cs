@@ -6,12 +6,20 @@ using static Unity.Entities.TypeManager;
 
 namespace NeroWeNeed.InputSystem
 {
-    public interface IInputStateComponentData : ISystemStateComponentData { }
-    public interface IInputStateComponentData<TValue> : IInputStateComponentData where TValue : unmanaged
+    public struct InputStateControlScheme : IComponentData
     {
-        public TValue Value { get; set; }
+        public BlobAssetReference<ControlScheme> value;
+    }
+    [InternalBufferCapacity(4)]
+    public struct InputStateDeviceFilter : ISystemStateBufferElementData
+    {
+        public int id;
     }
 
+    public struct InputControllerReference : IComponentData
+    {
+        public Entity value;
+    }
 
     public struct InputActionAssetData : ISystemStateSharedComponentData, IEquatable<InputActionAssetData>
     {
@@ -34,15 +42,16 @@ namespace NeroWeNeed.InputSystem
             return -1584136870 + EqualityComparer<InputActionAsset>.Default.GetHashCode(value);
         }
     }
-    public struct InputActionAssetLoadRequest : ISharedComponentData, IEquatable<InputActionAssetLoadRequest>
+    public struct InputActionAssetRequest : ISharedComponentData, IEquatable<InputActionAssetRequest>
     {
         public Guid value;
 
-        public InputActionAssetLoadRequest(Guid value) {
+        public InputActionAssetRequest(Guid value)
+        {
             this.value = value;
         }
 #if UNITY_EDITOR
-        public InputActionAssetLoadRequest(InputActionAsset asset)
+        public InputActionAssetRequest(InputActionAsset asset)
         {
             value = Guid.Empty;
             var path = UnityEditor.AssetDatabase.GetAssetPath(asset);
@@ -55,31 +64,8 @@ namespace NeroWeNeed.InputSystem
                 }
             }
         }
-
-        public bool Equals(InputActionAssetLoadRequest other)
-        {
-            return value.Equals(other.value);
-        }
-
-        public override int GetHashCode()
-        {
-            return -1584136870 + value.GetHashCode();
-        }
-
 #endif
-    }
-    [Serializable]
-    public struct InputActionMapReference : ISharedComponentData, IEquatable<InputActionMapReference>
-    {
-        public Guid value;
-
-        public InputActionMapReference(Guid value)
-        {
-
-            this.value = value;
-        }
-
-        public bool Equals(InputActionMapReference other)
+        public bool Equals(InputActionAssetRequest other)
         {
             return value.Equals(other.value);
         }
@@ -88,5 +74,7 @@ namespace NeroWeNeed.InputSystem
         {
             return -1584136870 + value.GetHashCode();
         }
+
+
     }
 }

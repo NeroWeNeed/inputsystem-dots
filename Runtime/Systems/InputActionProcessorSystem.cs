@@ -82,7 +82,6 @@ namespace NeroWeNeed.InputSystem
         }
         private void EnableActionMap(InputActionMap actionMap)
         {
-            Debug.Log("e");
             if (!actionMaps.ContainsKey(actionMap.id))
             {
                 actionMaps[actionMap.id] = actionMap;
@@ -91,12 +90,10 @@ namespace NeroWeNeed.InputSystem
         }
         private void DisableActionMap(InputActionMap actionMap)
         {
-            Debug.Log("f");
             if (actionMaps.Remove(actionMap.id))
             {
                 actionMap.actionTriggered -= WriteToBuffer;
             }
-
         }
         private unsafe void WriteToBuffer(InputAction.CallbackContext context)
         {
@@ -113,6 +110,7 @@ namespace NeroWeNeed.InputSystem
                 case InputActionChange.ActionEnabled:
                     break;
                 case InputActionChange.ActionDisabled:
+                    Debug.Log(((InputAction)actionOrMap).name);
                     break;
                 case InputActionChange.ActionMapEnabled:
                     EnableActionMap((InputActionMap)actionOrMap);

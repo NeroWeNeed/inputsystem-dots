@@ -2,6 +2,8 @@ using System;
 
 namespace NeroWeNeed.InputSystem
 {
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public sealed class InputActionAssemblyAttribute : Attribute { }
     [AttributeUsage(AttributeTargets.Struct)]
     public sealed class InputActionMapComponentAttribute : Attribute
     {

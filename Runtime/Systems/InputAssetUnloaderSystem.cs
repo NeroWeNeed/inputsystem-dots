@@ -9,7 +9,7 @@ namespace NeroWeNeed.InputSystem
         protected override void OnCreate()
         {
             base.OnCreate();
-            query = GetEntityQuery(ComponentType.ReadOnly<InputActionAssetData>(), ComponentType.Exclude<InputActionAssetLoadRequest>());
+            query = GetEntityQuery(ComponentType.ReadOnly<InputActionAssetData>(), ComponentType.Exclude<InputActionAssetRequest>());
         }
         protected override void OnDestroy()
         {
