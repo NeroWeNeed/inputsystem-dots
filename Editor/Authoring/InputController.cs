@@ -13,62 +13,41 @@ namespace NeroWeNeed.InputSystem.Editor
 {
     public class InputController : MonoBehaviour, IConvertGameObjectToEntity
     {
-        [SerializeField]
-        private InputActionMapOptions options;
-        private void OnValidate()
-        {
-            if (options.asset != null)
-            {
-                if (options.entries == null)
-                {
-                    options.entries = options.asset.actionMaps.Select(actionMap => new InputActionMapOptions.Entry(actionMap)).ToArray();
-                }
-                else
-                {
-                    var info = new Dictionary<Guid, InputActionMapOptions.Entry>();
-                    foreach (var item in options.asset.actionMaps)
-                    {
-                        info[item.id] = new InputActionMapOptions.Entry(item);
-                    }
-                    foreach (var item in options.entries)
-                    {
-                        if (info.ContainsKey(item.Guid))
-                        {
-                            info[item.Guid] = item;
-                        }
-                    }
-                    options.entries = info.Values.ToArray();
-                }
-            }
-            else
-            {
-                options.entries = Array.Empty<InputActionMapOptions.Entry>();
-            }
-            EditorUtility.SetDirty(this);
-        }
+        public InputActionAsset asset;
+        public string controlScheme;
+        public InputActionMapOption[] actionMapOptions;
+
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            if (options.asset != null)
+            if (asset != null)
             {
-                conversionSystem.DeclareAssetDependency(gameObject, options.asset);
-                var assetPath = AssetDatabase.GetAssetPath(options.asset);
+                conversionSystem.DeclareAssetDependency(gameObject, asset);
+                var assetPath = AssetDatabase.GetAssetPath(asset);
                 if (assetPath != null)
                 {
                     var guid = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings.DefaultGroup.GetAssetEntry(AssetDatabase.AssetPathToGUID(assetPath))?.guid;
                     if (guid != null)
                     {
                         dstManager.AddSharedComponentData(entity, new InputActionAssetRequest(Guid.Parse(guid)));
-                        if (options.entries != null)
+                        if (actionMapOptions != null)
                         {
-                            InputActionComponentMappingManager.Initialize();
-                            foreach (var entry in options.entries.Where(entry => entry.enabledByDefault))
+                            InputActionComponentManager.Initialize();
+                            foreach (var entry in actionMapOptions.Where(entry => entry.enabledByDefault))
                             {
-                                if (InputActionComponentMappingManager.TryGetActionMapComponent(entry.Guid, out var componentType))
+                                if (InputActionComponentManager.TryGetActionMapComponent(entry.Guid, out var componentType))
                                 {
                                     dstManager.AddComponent(entity, componentType);
                                 }
                             }
+                        }
+                        if (!string.IsNullOrEmpty(controlScheme))
+                        {
+                            dstManager.AddComponentData(entity, new InputControlScheme(asset.FindControlSchemeIndex(controlScheme)));
+                        }
+                        else
+                        {
+                            dstManager.AddComponentData(entity, new InputControlScheme(-1));
                         }
                     }
                 }
@@ -76,38 +55,31 @@ namespace NeroWeNeed.InputSystem.Editor
 
         }
         [Serializable]
-        public struct InputActionMapOptions
+        public struct InputActionMapOption
         {
-            public InputActionAsset asset;
-            public Entry[] entries;
 
-
-            [Serializable]
-            public struct Entry
+            public string id;
+            private Guid guid;
+            public Guid Guid
+            {
+                get
+                {
+                    if (guid == Guid.Empty && !string.IsNullOrEmpty(id))
+                    {
+                        if (!Guid.TryParseExact(id, "B", out guid))
+                        {
+                            id = null;
+                        }
+                    }
+                    return guid;
+                }
+            }
+            public bool enabledByDefault;
+            public InputActionMapOption(InputActionMap actionMap)
             {
 
-                public string id;
-                private Guid guid;
-                public Guid Guid
-                {
-                    get
-                    {
-                        if (guid == Guid.Empty && !string.IsNullOrEmpty(id))
-                        {
-                            if (!Guid.TryParseExact(id, "B", out guid))
-                            {
-                                id = null;
-                            }
-                        }
-                        return guid;
-                    }
-                }
-                public bool enabledByDefault;
-                public Entry(InputActionMap actionMap)
-                {
-                    id = actionMap.id.ToString("B");
-                    enabledByDefault = true;
-                }
+                id = actionMap.id.ToString("B");
+                enabledByDefault = true;
             }
         }
     }

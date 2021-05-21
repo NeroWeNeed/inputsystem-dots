@@ -6,15 +6,30 @@ using static Unity.Entities.TypeManager;
 
 namespace NeroWeNeed.InputSystem
 {
-    public struct InputStateControlScheme : IComponentData
-    {
-        public BlobAssetReference<ControlScheme> value;
-    }
+
     [InternalBufferCapacity(4)]
-    public struct InputStateDeviceFilter : ISystemStateBufferElementData
+    public struct InputDeviceFilterData : ISystemStateBufferElementData
     {
         public int id;
+
+        public InputDeviceFilterData(int id)
+        {
+            this.id = id;
+        }
+
+        public static implicit operator InputDeviceFilterData(int id) => new InputDeviceFilterData(id);
+        public static implicit operator InputDeviceFilterData(InputDevice device) => new InputDeviceFilterData(device.deviceId);
     }
+
+    public struct InputControlScheme : IComponentData {
+        public int index;
+
+        public InputControlScheme(int index)
+        {
+            this.index = index;
+        }
+    }
+    
 
     public struct InputControllerReference : IComponentData
     {

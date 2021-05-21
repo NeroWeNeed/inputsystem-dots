@@ -16,8 +16,8 @@ namespace NeroWeNeed.InputSystem
         {
             internal byte* data;
             public byte* Data { get => data; }
-            public InputActionHeaderData* Header { get => (InputActionHeaderData*)data; }
-            public void* Value { get => (InputActionHeaderData*)(data + sizeof(InputActionHeaderData)); }
+            public InputActionEventHeaderData* Header { get => (InputActionEventHeaderData*)data; }
+            public void* Value { get => (InputActionEventHeaderData*)(data + sizeof(InputActionEventHeaderData)); }
         }
         public struct Enumerator : IEnumerator<ActionEventHandle>, IEnumerator
         {
@@ -46,7 +46,7 @@ namespace NeroWeNeed.InputSystem
                 {
                     data = data + offset
                 };
-                offset += ((InputActionHeaderData*)(data + offset))->sizeInBytes;
+                offset += ((InputActionEventHeaderData*)(data + offset))->sizeInBytes;
                 return true;
             }
 
@@ -67,7 +67,25 @@ namespace NeroWeNeed.InputSystem
                 this.length = length;
             }
         }
-        private UnsafeHashMap<Guid, StateIndex> indices;
+        private struct Key : IEquatable<Key>
+        {
+            public Guid actionId;
+            public int deviceId;
+
+            public bool Equals(Key other)
+            {
+                return actionId.Equals(other.actionId) && deviceId == other.deviceId;
+            }
+
+            public override int GetHashCode()
+            {
+                int hashCode = -551687040;
+                hashCode = hashCode * -1521134295 + actionId.GetHashCode();
+                hashCode = hashCode * -1521134295 + deviceId.GetHashCode();
+                return hashCode;
+            }
+        }
+        private UnsafeHashMap<Key, StateIndex> indices;
         private static int staticSafetyId;
         [NativeDisableUnsafePtrRestriction]
         private byte* data;
@@ -98,12 +116,17 @@ namespace NeroWeNeed.InputSystem
             m_Safety = default;
             m_DisposeSentinel = default;
             data = (byte*)IntPtr.Zero.ToPointer();
-            indices = new UnsafeHashMap<Guid, StateIndex>(8, allocator);
+            indices = new UnsafeHashMap<Key, StateIndex>(8, allocator);
             Allocate(initialCapacity, allocator, ref this);
         }
         public void ClearAction(InputAction action)
         {
-            if (indices.TryGetValue(action.id, out var index))
+            var key = new Key
+            {
+                actionId = action.id,
+                deviceId = action.activeControl.device.deviceId
+            };
+            if (indices.TryGetValue(key, out var index))
             {
                 UnsafeUtility.MemClear(data + index.offset, index.length);
             }
@@ -111,9 +134,14 @@ namespace NeroWeNeed.InputSystem
         [WriteAccessRequired]
         public void WriteAction(InputAction.CallbackContext context)
         {
-            if (indices.TryGetValue(context.action.id, out var index))
+            var key = new Key
             {
-                var header = new InputActionHeaderData
+                actionId = context.action.id,
+                deviceId = context.control.device.deviceId
+            };
+            if (indices.TryGetValue(key, out var index))
+            {
+                var header = new InputActionEventHeaderData
                 {
                     sizeInBytes = index.length,
                     actionMapId = context.action.actionMap.id,
@@ -124,14 +152,14 @@ namespace NeroWeNeed.InputSystem
                     deviceId = context.control.device.deviceId
                 };
                 UnsafeUtility.CopyStructureToPtr(ref header, data + index.offset);
-                context.ReadValue(data + index.offset + sizeof(InputActionHeaderData), capacity - (index.offset + sizeof(InputActionHeaderData)));
+                context.ReadValue(data + index.offset + sizeof(InputActionEventHeaderData), capacity - (index.offset + sizeof(InputActionEventHeaderData)));
             }
             else
             {
                 EnsureCapacity(context);
-                index = new StateIndex(currentOffset, sizeof(InputActionHeaderData) + context.valueSizeInBytes);
-                indices[context.action.id] = index;
-                var header = new InputActionHeaderData
+                index = new StateIndex(currentOffset, sizeof(InputActionEventHeaderData) + context.valueSizeInBytes);
+                indices[key] = index;
+                var header = new InputActionEventHeaderData
                 {
                     sizeInBytes = index.length,
                     actionMapId = context.action.actionMap.id,
@@ -142,7 +170,7 @@ namespace NeroWeNeed.InputSystem
                     deviceId = context.control.device.deviceId
                 };
                 UnsafeUtility.CopyStructureToPtr(ref header, data + currentOffset);
-                context.ReadValue(data + currentOffset + sizeof(InputActionHeaderData), capacity - (currentOffset + sizeof(InputActionHeaderData)));
+                context.ReadValue(data + currentOffset + sizeof(InputActionEventHeaderData), capacity - (currentOffset + sizeof(InputActionEventHeaderData)));
                 currentOffset += index.length;
             }
         }
@@ -167,7 +195,7 @@ namespace NeroWeNeed.InputSystem
         private void EnsureCapacity(InputAction.CallbackContext context)
         {
             AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(m_Safety);
-            var size = sizeof(InputActionHeaderData) + context.valueSizeInBytes;
+            var size = sizeof(InputActionEventHeaderData) + context.valueSizeInBytes;
             if (currentOffset + size > capacity)
             {
                 var newDataSize = capacity * 2;

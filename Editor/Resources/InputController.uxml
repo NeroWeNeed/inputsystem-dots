@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement>
-        <uie:PropertyField binding-path="options" name="asset-field" />
-        
+        <uie:ObjectField name="asset-field" binding-path="asset" type="UnityEngine.InputSystem.InputActionAsset, Unity.InputSystem" label="Asset"/>
+        <ui:VisualElement name="control-scheme-container" />
+        <ui:VisualElement name="action-map-options-container"/>
     </ui:VisualElement>
 </ui:UXML>

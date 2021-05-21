@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:Box>
         <!-- <ui:Label name="action-map-name" class="unity-base-field unity-base-popup-field unity-popup-field" /> -->
-        <uie:PropertyField binding-path="enabledByDefault" name="action-map-name-single" />
+        <ui:Toggle binding-path="enabledByDefault" name="action-map-name-single" />
     </ui:Box>
 </ui:UXML>

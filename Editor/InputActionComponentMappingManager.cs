@@ -9,34 +9,14 @@ using UnityEngine;
 
 namespace NeroWeNeed.InputSystem.Editor
 {
-    public static class InputActionComponentMappingManager
+    public static class InputActionComponentManager
     {
         private static bool initialized = false;
-        private static Dictionary<Guid, MappingData> inputActionMapComponents = new Dictionary<Guid, MappingData>();
+        private static readonly Dictionary<Guid, MappingData> inputActionMapComponents = new Dictionary<Guid, MappingData>();
         public static void Initialize()
         {
-            /* if (!initialized)
-            {
-                foreach (var mapping in AssetDatabase.FindAssets($"t:{nameof(InputActionComponentMappingAsset)}").Select(a => AssetDatabase.LoadAssetAtPath<InputActionComponentMappingAsset>(AssetDatabase.GUIDToAssetPath(a))))
-                {
-                    var assembly = Array.Find(AppDomain.CurrentDomain.GetAssemblies(), assembly => assembly.GetName().Name == mapping.assembly);
-                    if (assembly != null)
-                    {
-                        foreach (var actionMap in mapping.actionMaps)
-                        {
-                            inputActionMapComponents[Guid.ParseExact(actionMap.id, "B")] = new MappingData
-                            {
-                                actionMapComponent = assembly.GetType(actionMap.component),
-                                actionComponents = actionMap.actions.Select(a => assembly.GetType(a.component)).ToList().AsReadOnly()
-                            };
-                        }
-                    }
-                }
-                initialized = true;
-            } */
             if (!initialized)
             {
-
                 initialized = true;
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 var actionMapComponents = new Dictionary<string, Type>();
@@ -48,14 +28,14 @@ namespace NeroWeNeed.InputSystem.Editor
                         foreach (var type in assembly.GetTypes())
                         {
                             var mapAttr = type.GetCustomAttribute<InputActionMapComponentAttribute>();
-                            if (mapAttr != null && (typeof(IInputActionMapTag).IsAssignableFrom(type)))
+                            if (mapAttr != null && typeof(IInputActionMapTag).IsAssignableFrom(type))
                             {
                                 actionMapComponents[mapAttr.id] = type;
                             }
                             else
                             {
                                 var actionAttr = type.GetCustomAttribute<InputActionComponentAttribute>();
-                                if (actionAttr != null && (typeof(IInputData).IsAssignableFrom(type)))
+                                if (actionAttr != null && typeof(IInputData).IsAssignableFrom(type))
                                 {
                                     if (!actionComponents.TryGetValue(actionAttr.actionMapId, out var actionTypes))
                                     {
@@ -73,7 +53,6 @@ namespace NeroWeNeed.InputSystem.Editor
                     inputActionMapComponents[Guid.ParseExact(actionMapComponent.Key, "B")] = new MappingData(actionMapComponent.Value, actionComponents.TryGetValue(actionMapComponent.Key, out var actionTypes) ? actionTypes.AsReadOnly() : new ReadOnlyCollection<Type>(null));
                 }
                 initialized = true;
-
             }
         }
         public static MappingData Get(Guid guid) => inputActionMapComponents[guid];

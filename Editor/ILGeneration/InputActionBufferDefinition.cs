@@ -26,7 +26,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
         }
         public override FieldDefinition ILCreateJobField(ModuleDefinition moduleDefinition)
         {
-            return new FieldDefinition($"{action.name}TypeHandle", FieldAttributes.Public, moduleDefinition.ImportReference(moduleDefinition.ImportReference(typeof(BufferTypeHandle<>)).MakeGenericInstanceType(typeDefinition)));
+            return new FieldDefinition($"InputAction{action.name}TypeHandle", FieldAttributes.Public, moduleDefinition.ImportReference(moduleDefinition.ImportReference(typeof(BufferTypeHandle<>)).MakeGenericInstanceType(typeDefinition)));
         }
 
         public override void ILGetTypeHandle(ModuleDefinition moduleDefinition, ILProcessor processor)
@@ -53,12 +53,12 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
 
         }
 
-        public override Instruction ILWriteInputData(ModuleDefinition moduleDefinition, ILProcessor processor, VariableDefinition enumeratorItemVariableDefinition, VariableDefinition accessorVariableDefinition, ParameterDefinition archetypeChunkParameterDefinition)
+        public override Instruction ILWriteInputData(ModuleDefinition moduleDefinition, ILProcessor processor, VariableDefinition enumeratorItemVariableDefinition, VariableDefinition accessorVariableDefinition, VariableDefinition deviceFilterAccessorVariableDefinition, ParameterDefinition archetypeChunkParameterDefinition)
         {
-            var componentWriteCall = new GenericInstanceMethod(moduleDefinition.ImportReference(typeof(InputUpdateSystemJobUtility).GetMethod(nameof(InputUpdateSystemJobUtility.WriteBuffers))));
+            var componentWriteCall = new GenericInstanceMethod(moduleDefinition.ImportReference(typeof(InputUpdateSystemJobUtility).GetMethod(nameof(InputUpdateSystemJobUtility.WriteActionBuffer))));
             componentWriteCall.GenericArguments.Add(typeDefinition);
-
             processor.Emit(OpCodes.Ldloca, accessorVariableDefinition);
+            processor.Emit(OpCodes.Ldloca, deviceFilterAccessorVariableDefinition);
             processor.Emit(OpCodes.Ldloca, enumeratorItemVariableDefinition);
             processor.Emit(OpCodes.Ldarga, archetypeChunkParameterDefinition);
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetProperty(nameof(ArchetypeChunk.Count)).GetMethod));

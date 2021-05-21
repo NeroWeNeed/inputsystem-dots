@@ -14,7 +14,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
         {
             this.actionMap = actionMap;
             typeDefinition = new TypeDefinition(@namespace, $"InputActionMap_{actionMap.name}", TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable, moduleDefinition.ImportReference(typeof(ValueType)));
-            typeDefinition.Interfaces.Add(new InterfaceImplementation(moduleDefinition.ImportReference(typeof(IComponentData))));
+            typeDefinition.Interfaces.Add(new InterfaceImplementation(moduleDefinition.ImportReference(typeof(IInputActionMapTag))));
             var idAttr = new CustomAttribute(moduleDefinition.ImportReference(typeof(InputActionMapComponentAttribute).GetConstructor(new Type[] { typeof(string) })));
             idAttr.ConstructorArguments.Add(new CustomAttributeArgument(moduleDefinition.TypeSystem.String, actionMap.id.ToString("B")));
             typeDefinition.CustomAttributes.Add(idAttr);

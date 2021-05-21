@@ -53,7 +53,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
 
         public override FieldDefinition ILCreateJobField(ModuleDefinition moduleDefinition)
         {
-            return new FieldDefinition($"{action.name}TypeHandle", FieldAttributes.Public, moduleDefinition.ImportReference(moduleDefinition.ImportReference(typeof(ComponentTypeHandle<>)).MakeGenericInstanceType(typeDefinition)));
+            return new FieldDefinition($"InputAction{action.name}TypeHandle", FieldAttributes.Public, moduleDefinition.ImportReference(moduleDefinition.ImportReference(typeof(ComponentTypeHandle<>)).MakeGenericInstanceType(typeDefinition)));
         }
 
         public override void ILGetTypeHandle(ModuleDefinition moduleDefinition, ILProcessor processor)
@@ -102,13 +102,15 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(call));
             processor.Emit(OpCodes.Stloc, accessorVariableDefinition);
         }
-        public override Instruction ILWriteInputData(ModuleDefinition moduleDefinition, ILProcessor processor, VariableDefinition enumeratorItemVariableDefinition, VariableDefinition accessorVariableDefinition, ParameterDefinition archetypeChunkParameterDefinition)
+        public override Instruction ILWriteInputData(ModuleDefinition moduleDefinition, ILProcessor processor, VariableDefinition enumeratorItemVariableDefinition, VariableDefinition accessorVariableDefinition, VariableDefinition deviceFilterAccessorVariableDefinition, ParameterDefinition archetypeChunkParameterDefinition)
         {
-            var componentWriteCall = moduleDefinition.ImportReference(typeof(InputUpdateSystemJobUtility).GetMethod(nameof(InputUpdateSystemJobUtility.WriteComponents)));
-            processor.Emit(OpCodes.Ldloc, accessorVariableDefinition);
+            //var componentWriteCall = moduleDefinition.ImportReference(typeof(InputUpdateSystemJobUtility).GetMethod(nameof(InputUpdateSystemJobUtility.WriteComponents)));
+            var componentWriteCall = moduleDefinition.ImportReference(typeof(InputUpdateSystemJobUtility).GetMethod(nameof(InputUpdateSystemJobUtility.WriteActionComponent)));
             var unsafePtrCall = new GenericInstanceMethod(moduleDefinition.ImportReference(typeof(NativeArrayUnsafeUtility).GetMethod(nameof(NativeArrayUnsafeUtility.GetUnsafePtr))));
             unsafePtrCall.GenericArguments.Add(typeDefinition);
+            processor.Emit(OpCodes.Ldloc, accessorVariableDefinition);
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(unsafePtrCall));
+            processor.Emit(OpCodes.Ldloca, deviceFilterAccessorVariableDefinition);
             processor.Emit(OpCodes.Ldloca, enumeratorItemVariableDefinition);
             processor.Emit(OpCodes.Ldarga, archetypeChunkParameterDefinition);
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetProperty(nameof(ArchetypeChunk.Count)).GetMethod));

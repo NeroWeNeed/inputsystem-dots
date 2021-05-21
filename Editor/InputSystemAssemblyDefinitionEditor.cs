@@ -27,20 +27,10 @@ namespace NeroWeNeed.InputSystem.Editor
             rootElement = uxml.CloneTree();
             var generateButton = rootElement.Q<Button>("generate");
             var assetField = rootElement.Q<ObjectField>("asset-field");
-            assetField.RegisterValueChangedCallback(evt =>
-            {
-                generateButton.SetEnabled(evt.newValue != null);
-            });
+            assetField.RegisterValueChangedCallback(evt => generateButton.SetEnabled(evt.newValue != null));
             generateButton.SetEnabled(serializedObject.FindProperty(assetField.bindingPath).objectReferenceValue != null);
             generateButton.clicked += OnGenerate;
             return rootElement;
-        }
-        private void UpdateAssetMetadata(InputActionAsset previousValue, InputActionAsset newValue)
-        {
-            var previousPath = AssetDatabase.GetAssetPath(previousValue);
-            var newPath = AssetDatabase.GetAssetPath(newValue);
-            var importer = (ScriptedImporter)AssetImporter.GetAtPath(previousPath);
-
         }
         private void OnGenerate()
         {
