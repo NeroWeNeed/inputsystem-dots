@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace NeroWeNeed.InputSystem
@@ -117,6 +118,7 @@ namespace NeroWeNeed.InputSystem
             m_DisposeSentinel = default;
             data = (byte*)IntPtr.Zero.ToPointer();
             indices = new UnsafeHashMap<Key, StateIndex>(8, allocator);
+
             Allocate(initialCapacity, allocator, ref this);
         }
         public void ClearAction(InputAction action)

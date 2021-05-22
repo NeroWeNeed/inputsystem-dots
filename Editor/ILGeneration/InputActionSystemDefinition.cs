@@ -174,8 +174,13 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
             processor.Emit(OpCodes.Call, scheduleCall);
             processor.Emit(OpCodes.Stloc, jobHandleVariable);
             processor.Emit(OpCodes.Ldarg_0);
-            processor.Emit(OpCodes.Ldfld, traceClearSystemField);
             processor.Emit(OpCodes.Ldloc, jobHandleVariable);
+            processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(SystemBase).GetProperty("Dependency", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetMethod));
+            processor.Emit(OpCodes.Ldarg_0);
+            processor.Emit(OpCodes.Ldfld, traceClearSystemField);
+            processor.Emit(OpCodes.Ldarg_0);
+            processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(SystemBase).GetProperty("Dependency", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetMethod));
+            /* processor.Emit(OpCodes.Ldloc, jobHandleVariable); */
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(InputActionCleanupSystem).GetMethod(nameof(InputActionCleanupSystem.AddJobHandle))));
             processor.Emit(OpCodes.Ret);
             processor.Body.OptimizeMacros();

@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement>
-        <uie:ObjectField binding-path="asset" name="asset-field" label="Asset" type="UnityEngine.InputSystem.InputActionAsset, Unity.InputSystem" />
-        <ui:VisualElement name="control-scheme-container" />
-        <ui:VisualElement name="popup-container" />
-    </ui:VisualElement>
-</ui:UXML>

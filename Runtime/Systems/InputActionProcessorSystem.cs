@@ -49,6 +49,11 @@ namespace NeroWeNeed.InputSystem
         private Dictionary<Guid, InputActionMap> actionMaps;
         protected override void OnCreate()
         {
+
+            base.OnCreate();
+        }
+        protected unsafe override void OnStartRunning()
+        {
             buffer = new NativeInputActionBuffer(512, Allocator.Persistent);
             handles = new NativeMultiHashMap<Guid, NativeInputActionBuffer.ActionEventHandle>(8, Allocator.Persistent);
             actionMaps = new Dictionary<Guid, InputActionMap>();
@@ -58,11 +63,11 @@ namespace NeroWeNeed.InputSystem
                 actionMap.actionTriggered += WriteToBuffer;
             }
             UnityEngine.InputSystem.InputSystem.onActionChange += OnActionChange;
-            base.OnCreate();
         }
         protected unsafe override void OnUpdate()
         {
             UnityEngine.InputSystem.InputSystem.Update();
+
             var job = new PartitionInputBufferJob
             {
                 buffer = buffer,
@@ -70,7 +75,7 @@ namespace NeroWeNeed.InputSystem
             };
             job.Schedule().Complete();
         }
-        protected override void OnDestroy()
+        protected override void OnStopRunning()
         {
             buffer.Dispose();
             handles.Dispose();
@@ -79,6 +84,11 @@ namespace NeroWeNeed.InputSystem
                 actionMap.actionTriggered -= WriteToBuffer;
             }
             actionMaps.Clear();
+            UnityEngine.InputSystem.InputSystem.onActionChange -= OnActionChange;
+        }
+        protected override void OnDestroy()
+        {
+
         }
         private void EnableActionMap(InputActionMap actionMap)
         {

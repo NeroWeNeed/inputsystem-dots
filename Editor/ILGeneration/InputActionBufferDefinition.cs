@@ -1,19 +1,33 @@
 using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using NeroWeNeed.Commons.Editor;
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.InputSystem;
 namespace NeroWeNeed.InputSystem.Editor.ILGeneration
 {
     internal class InputActionBufferDefinition : BaseInputActionDefinition
     {
         public FieldDefinition byteField;
-        public InputActionBufferDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace)
+        public InputActionBufferDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace,HashSet<string> typeNames)
         {
             this.action = action;
-            typeDefinition = new TypeDefinition(@namespace, $"InputAction_{actionMap.name}_{action.name}", TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable, moduleDefinition.ImportReference(typeof(ValueType)));
+            var typeName = $"InputAction_{actionMap.name.Replace(" ", "")}_{action.name.Replace(" ", "")}";
+            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(typeName) || typeNames.Contains(typeName))
+            {
+                typeName = $"InputAction_{actionMap.name.Replace(" ", "")}_{action.id:N}";
+                if (!CodeGenerator.IsValidLanguageIndependentIdentifier(typeName) || typeNames.Contains(typeName))
+                {
+                    typeName = $"InputAction_{actionMap.id:N}_{action.id:N}";
+                }
+            }
+            Debug.Assert(!typeNames.Contains(typeName));
+            typeNames.Add(typeName);
+            typeDefinition = new TypeDefinition(@namespace, typeName, TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable, moduleDefinition.ImportReference(typeof(ValueType)));
             var interfaceType = moduleDefinition.ImportReference(typeof(IInputStateBufferData));
             typeDefinition.Interfaces.Add(new InterfaceImplementation(interfaceType));
             var idAttr = new CustomAttribute(moduleDefinition.ImportReference(typeof(InputActionComponentAttribute).GetConstructor(new Type[] { typeof(string), typeof(string) })));

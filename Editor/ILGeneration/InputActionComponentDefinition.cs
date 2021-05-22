@@ -1,4 +1,7 @@
 using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
@@ -19,13 +22,24 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
         public FieldDefinition valueField;
         public TypeReference readValueType;
         public TypeReference fieldType;
-        public InputActionComponentDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace, TypeReference fieldType) : this(moduleDefinition, actionMap, action, @namespace, fieldType, fieldType) { }
-        public InputActionComponentDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace, TypeReference fieldType, TypeReference readValueType)
+        public InputActionComponentDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace, TypeReference fieldType, HashSet<string> typeNames) : this(moduleDefinition, actionMap, action, @namespace, fieldType, fieldType, typeNames) { }
+        public InputActionComponentDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace, TypeReference fieldType, TypeReference readValueType, HashSet<string> typeNames)
         {
             this.readValueType = readValueType;
             this.fieldType = fieldType;
             this.action = action;
-            typeDefinition = new TypeDefinition(@namespace, $"InputAction_{actionMap.name}_{action.name}", TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable, moduleDefinition.ImportReference(typeof(ValueType)));
+            var typeName = $"InputAction_{actionMap.name.Replace(" ", "")}_{action.name.Replace(" ", "")}";
+            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(typeName) || typeNames.Contains(typeName))
+            {
+                typeName = $"InputAction_{actionMap.name.Replace(" ", "")}_{action.id:N}";
+                if (!CodeGenerator.IsValidLanguageIndependentIdentifier(typeName) || typeNames.Contains(typeName))
+                {
+                    typeName = $"InputAction_{actionMap.id:N}_{action.id:N}";
+                }
+            }
+            Debug.Assert(!typeNames.Contains(typeName));
+            typeNames.Add(typeName);
+            typeDefinition = new TypeDefinition(@namespace, typeName, TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable, moduleDefinition.ImportReference(typeof(ValueType)));
             var interfaceType = moduleDefinition.ImportReference(typeof(IInputStateComponentData<>)).MakeGenericInstanceType(fieldType);
             typeDefinition.Interfaces.Add(new InterfaceImplementation(interfaceType));
             var idAttr = new CustomAttribute(moduleDefinition.ImportReference(typeof(InputActionComponentAttribute).GetConstructor(new Type[] { typeof(string), typeof(string) })));

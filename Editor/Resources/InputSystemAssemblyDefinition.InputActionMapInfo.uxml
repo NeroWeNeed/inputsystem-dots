@@ -1,6 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:Box>
-        <ui:Label name="name" class="unity-base-field unity-base-popup-field unity-popup-field"/>
-        <uie:PropertyField binding-path="sourceType" label="Source Type" />
-    </ui:Box>
-</ui:UXML>

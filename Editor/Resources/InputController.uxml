@@ -1,7 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement>
-        <uie:ObjectField name="asset-field" binding-path="asset" type="UnityEngine.InputSystem.InputActionAsset, Unity.InputSystem" label="Asset"/>
-        <ui:VisualElement name="control-scheme-container" />
-        <ui:VisualElement name="action-map-options-container"/>
+        <uie:ObjectField name="asset-field" binding-path="asset" type="UnityEngine.InputSystem.InputActionAsset, Unity.InputSystem" label="Asset" />
+        <ui:VisualElement name="control-scheme-container" class="requires-asset" />
+        <ui:Foldout name="action-map-options" class="requires-asset" text="Action Maps" style="-unity-font-style: bold;">
+            <ui:VisualElement name="action-map-options-container" style="-unity-font-style: normal;" />
+            <ui:VisualElement style="flex-direction: row; flex-grow: 1; align-self: flex-end;">
+                <ui:Button name="enable-all" text="Enable All" />
+                <ui:Button name="disable-all" text="Disable All"  />
+            </ui:VisualElement>
+        </ui:Foldout>
     </ui:VisualElement>
 </ui:UXML>

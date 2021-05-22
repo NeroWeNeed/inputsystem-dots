@@ -15,8 +15,35 @@ namespace NeroWeNeed.InputSystem.Editor
     {
         public InputActionAsset asset;
         public string controlScheme;
-        public InputActionMapOption[] actionMapOptions;
-
+        public List<InputActionMapOption> actionMapOptions;
+        private void OnValidate()
+        {
+            if (asset != null)
+            {
+                if (actionMapOptions == null)
+                {
+                    actionMapOptions = asset.actionMaps.Select(actionMap => new InputActionMapOption(actionMap)).ToList();
+                }
+                else
+                {
+                    var actionMapOptionInfo = new Dictionary<Guid, InputActionMapOption>();
+                    foreach (var actionMap in asset.actionMaps)
+                    {
+                        actionMapOptionInfo.Add(actionMap.id, default);
+                    }
+                    for (int i = 0; i < actionMapOptions.Count; i++)
+                    {
+                        actionMapOptionInfo[actionMapOptions[i].Guid] = actionMapOptions[i];
+                    }
+                    var result = actionMapOptionInfo.Values.ToList();
+                    if (!result.SequenceEqual(actionMapOptions))
+                    {
+                        EditorUtility.SetDirty(this);
+                    }
+                    actionMapOptions = result;
+                }
+            }
+        }
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -77,9 +104,8 @@ namespace NeroWeNeed.InputSystem.Editor
             public bool enabledByDefault;
             public InputActionMapOption(InputActionMap actionMap)
             {
-
                 id = actionMap.id.ToString("B");
-                enabledByDefault = true;
+                enabledByDefault = false;
             }
         }
     }
