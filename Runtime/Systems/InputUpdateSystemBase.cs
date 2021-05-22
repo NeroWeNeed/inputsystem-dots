@@ -1,9 +1,6 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.LowLevel.Unsafe;
-using Unity.Mathematics;
-
 namespace NeroWeNeed.InputSystem
 {
     [UpdateInGroup(typeof(InputUpdateSystemGroup))]

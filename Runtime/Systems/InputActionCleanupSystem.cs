@@ -1,7 +1,5 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-
 namespace NeroWeNeed.InputSystem
 {
     [UpdateInGroup(typeof(InputSystemGroup), OrderLast = true)]

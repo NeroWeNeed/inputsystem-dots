@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using NeroWeNeed.Commons.Editor;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -60,7 +59,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
             processor.Emit(OpCodes.Ldarga, archetypeChunkParameterDefinition);
             processor.Emit(OpCodes.Ldarg_0);
             processor.Emit(OpCodes.Ldfld, handleFieldDefinition);
-            var call = new GenericInstanceMethod(moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetGenericMethod(nameof(ArchetypeChunk.GetBufferAccessor), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)));
+            var call = new GenericInstanceMethod(moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetMethod(nameof(ArchetypeChunk.GetBufferAccessor), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)));
             call.GenericArguments.Add(typeDefinition);
             processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(call));
             processor.Emit(OpCodes.Stloc, variableDefinition);

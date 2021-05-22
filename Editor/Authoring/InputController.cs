@@ -2,12 +2,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Entities;
 using System;
-using Unity.Scenes;
 using UnityEditor;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
 
 namespace NeroWeNeed.InputSystem.Editor
 {

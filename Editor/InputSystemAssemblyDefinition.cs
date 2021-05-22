@@ -1,15 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-
+using UnityEngine.InputSystem;
 namespace NeroWeNeed.InputSystem.Editor
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using UnityEditor;
-    using UnityEngine;
-    using UnityEngine.InputSystem;
 
     [CreateAssetMenu(fileName = "InputSystemAssemblyDefinition", menuName = "Input System Assembly Definition", order = 0)]
     public class InputSystemAssemblyDefinition : ScriptableObject

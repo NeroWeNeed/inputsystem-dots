@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine.InputSystem;
-using static Unity.Entities.TypeManager;
 
 namespace NeroWeNeed.InputSystem
 {

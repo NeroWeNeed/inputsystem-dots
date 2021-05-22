@@ -1,7 +1,6 @@
 using System;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Unity.Entities;
 using UnityEngine.InputSystem;
 namespace NeroWeNeed.InputSystem.Editor.ILGeneration
 {

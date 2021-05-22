@@ -101,8 +101,6 @@ namespace NeroWeNeed.InputSystem.Editor
                         entryElement.BindProperty(currentProperty);
                         container.Add(entryElement);
                     }
-
-
                 }
             }
         }

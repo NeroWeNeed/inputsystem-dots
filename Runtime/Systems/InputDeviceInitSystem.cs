@@ -1,9 +1,4 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.InputSystem;
-
 namespace NeroWeNeed.InputSystem
 {
     [UpdateInGroup(typeof(InputInitializationSystemGroup))]

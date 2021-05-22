@@ -1,23 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
 using Mono.Cecil;
-using NeroWeNeed.Commons.AssemblyAnalyzers.Editor;
-using NeroWeNeed.Commons.Editor;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.Utilities;
 using UnityEngine.InputSystem.XR;
-using UnityEngine.XR;
 namespace NeroWeNeed.InputSystem.Editor.ILGeneration
 {
     public static class InputSystemAssemblyBuilder
@@ -38,7 +29,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
             HashSet<string> typeNames = new HashSet<string>();
             foreach (var actionMap in asset.asset.actionMaps)
             {
-                GenerateActionComponents(assemblyDefinition, assemblyDefinition.MainModule, actionMap, asset.assemblyNamespace, jobDefinitions,typeNames);
+                GenerateActionComponents(assemblyDefinition, assemblyDefinition.MainModule, actionMap, asset.assemblyNamespace, jobDefinitions, typeNames);
             }
             if (jobDefinitions.Count > 0)
             {
@@ -55,22 +46,21 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
                 return false;
             }
         }
-        private static void GenerateActionComponents(AssemblyDefinition assemblyDefinition, ModuleDefinition moduleDefinition, InputActionMap actionMap, string @namespace, List<InputActionSystemDefinition.JobDefinition> jobDefinitions,HashSet<string> typeNames)
+        private static void GenerateActionComponents(AssemblyDefinition assemblyDefinition, ModuleDefinition moduleDefinition, InputActionMap actionMap, string @namespace, List<InputActionSystemDefinition.JobDefinition> jobDefinitions, HashSet<string> typeNames)
         {
             var actionMapComponent = new InputActionMapComponentDefinition(moduleDefinition, actionMap, @namespace);
-            var actionComponents = actionMap.actions.Select(action => CreateInputActionDefinition(moduleDefinition, actionMap, action, @namespace,typeNames)).ToArray();
+            var actionComponents = actionMap.actions.Select(action => CreateInputActionDefinition(moduleDefinition, actionMap, action, @namespace, typeNames)).ToArray();
             var initSystem = new InputActionInitSystemDefinition(actionMapComponent, actionComponents, actionMap, assemblyDefinition, moduleDefinition, @namespace);
             var disposeSystem = new InputActionDisposeSystemDefinition(actionMapComponent, actionComponents, actionMap, assemblyDefinition, moduleDefinition, @namespace);
             var updateSystem = new InputActionSystemDefinition(actionMapComponent, actionComponents, moduleDefinition, @namespace);
             jobDefinitions.Add(updateSystem.jobTypeDefinition);
-
         }
-        private static BaseInputActionDefinition CreateInputActionDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace,HashSet<string> typeNames)
+        private static BaseInputActionDefinition CreateInputActionDefinition(ModuleDefinition moduleDefinition, InputActionMap actionMap, InputAction action, string @namespace, HashSet<string> typeNames)
         {
             switch (action.expectedControlType)
             {
                 case "Vector2":
-                    return new InputActionComponentDefinition(moduleDefinition, actionMap, action, @namespace, moduleDefinition.ImportReference(typeof(float2)), moduleDefinition.ImportReference(typeof(Vector2)),typeNames);
+                    return new InputActionComponentDefinition(moduleDefinition, actionMap, action, @namespace, moduleDefinition.ImportReference(typeof(float2)), moduleDefinition.ImportReference(typeof(Vector2)), typeNames);
                 case "Vector3":
                     return new InputActionComponentDefinition(moduleDefinition, actionMap, action, @namespace, moduleDefinition.ImportReference(typeof(float3)), moduleDefinition.ImportReference(typeof(Vector3)), typeNames);
                 case "Quaternion":

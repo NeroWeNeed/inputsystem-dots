@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
-using Unity.Entities;
-using UnityEditor;
-using UnityEngine;
-
 namespace NeroWeNeed.InputSystem.Editor
 {
     public static class InputActionComponentManager

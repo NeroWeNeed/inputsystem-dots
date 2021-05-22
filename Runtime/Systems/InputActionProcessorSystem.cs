@@ -1,19 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
-using NeroWeNeed.InputSystem;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Utilities;
-
 
 namespace NeroWeNeed.InputSystem
 {
@@ -47,11 +40,6 @@ namespace NeroWeNeed.InputSystem
             return handles.GetValuesForKey(id);
         }
         private Dictionary<Guid, InputActionMap> actionMaps;
-        protected override void OnCreate()
-        {
-
-            base.OnCreate();
-        }
         protected unsafe override void OnStartRunning()
         {
             buffer = new NativeInputActionBuffer(512, Allocator.Persistent);

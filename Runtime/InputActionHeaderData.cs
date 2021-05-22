@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using Unity.Mathematics;
 using UnityEngine.InputSystem;
 
 namespace NeroWeNeed.InputSystem

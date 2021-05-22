@@ -4,7 +4,7 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using NeroWeNeed.Commons.Editor;
+//using NeroWeNeed.Commons.Editor;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -307,7 +307,7 @@ namespace NeroWeNeed.InputSystem.Editor.ILGeneration
                 processor.Emit(OpCodes.Ldarga, archetypeChunkParameter);
                 processor.Emit(OpCodes.Ldarg_0);
                 processor.Emit(OpCodes.Ldfld, deviceFilterTypeHandle);
-                processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetGenericMethod(nameof(ArchetypeChunk.GetBufferAccessor), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).MakeGenericMethod(typeof(InputDeviceFilterData))));
+                processor.Emit(OpCodes.Call, moduleDefinition.ImportReference(typeof(ArchetypeChunk).GetMethod(nameof(ArchetypeChunk.GetBufferAccessor), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).MakeGenericMethod(typeof(InputDeviceFilterData))));
                 processor.Emit(OpCodes.Stloc, deviceFilterAccessorVariable);
 
                 //Get Native Arrays & buffers
